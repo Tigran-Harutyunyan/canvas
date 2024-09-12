@@ -1,6 +1,140 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
+import Logo from "./Logo.vue";
+import Hint from "@/components/Hint.vue";
+import { CiFileOn } from "vue3-icons/ci";
+import { BsCloudCheck, BsCloudSlash } from "vue3-icons/bs";
+import type { ActiveTool, Editor } from "@/features/editor/types";
+import {
+  ChevronDown,
+  Download,
+  Loader,
+  MousePointerClick,
+  Redo2,
+  Undo2,
+} from "lucide-vue-next";
+
+interface NavbarProps {
+  id: string;
+  editor: Editor | undefined;
+  activeTool: ActiveTool;
+}
+
+const props = defineProps<NavbarProps>();
+const emit = defineEmits<{
+  (e: "onChangeActiveTool", tool: ActiveTool): void;
+}>();
+
+const isPending = ref(false);
+const isError = ref(false);
+</script>
 <template>
   <nav
     class="w-full flex items-center p-4 h-[68px] gap-x-8 border-b lg:pl-[34px]"
-  ></nav>
+  >
+    <Logo />
+    <div class="w-full flex items-center gap-x-1 h-full">
+      <DropdownMenu :modal="false">
+        <DropdownMenuTrigger as-child>
+          <Button size="sm" variant="ghost">
+            File
+            <ChevronDown class="size-4 ml-2" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" class="min-w-60">
+          <DropdownMenuItem class="flex items-center gap-x-2">
+            <CiFileOn class="size-8" />
+            <div>
+              <p>Open</p>
+              <p class="text-xs text-muted-foreground">Open a JSON file</p>
+            </div>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <Separator orientation="vertical" class="mx-2" />
+      <Hint label="Select" side="bottom" :sideOffset="10">
+        <Button
+          variant="ghost"
+          size="icon"
+          :class="cn(props.activeTool === 'select' && 'bg-gray-100')"
+        >
+          <MousePointerClick class="size-4" />
+        </Button>
+      </Hint>
+      <Hint label="Undo" side="bottom" :sideOffset="10">
+        <Button variant="ghost" size="icon">
+          <Undo2 class="size-4" />
+        </Button>
+      </Hint>
+      <Hint label="Redo" side="bottom" :sideOffset="10">
+        <Button variant="ghost" size="icon">
+          <Redo2 class="size-4" />
+        </Button>
+      </Hint>
+      <Separator orientation="vertical" class="mx-2" />
+      <div v-if="isPending" class="flex items-center gap-x-2">
+        <Loader class="size-4 animate-spin text-muted-foreground" />
+        <div class="text-xs text-muted-foreground">Saving...</div>
+      </div>
+      <div v-if="!isPending && !isError" class="flex items-center gap-x-2">
+        <BsCloudCheck class="size-[20px] text-muted-foreground" />
+        <div class="text-xs text-muted-foreground">Saved</div>
+      </div>
+      <div class="ml-auto flex items-center gap-x-4">
+        <DropdownMenu :modal="false">
+          <DropdownMenuTrigger as-child>
+            <Button size="sm" variant="ghost">
+              Export
+              <Download class="size-4 ml-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" class="min-w-60">
+            <DropdownMenuItem class="flex items-center gap-x-2">
+              <CiFileOn class="size-8" />
+              <div>
+                <p>JSON</p>
+                <p class="text-xs text-muted-foreground">
+                  Save for later editing
+                </p>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem class="flex items-center gap-x-2">
+              <CiFileOn class="size-8" />
+              <div>
+                <p>PNG</p>
+                <p class="text-xs text-muted-foreground">
+                  Best for sharing on the web
+                </p>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem class="flex items-center gap-x-2">
+              <CiFileOn class="size-8" />
+              <div>
+                <p>JPG</p>
+                <p class="text-xs text-muted-foreground">Best for printing</p>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem class="flex items-center gap-x-2">
+              <CiFileOn class="size-8" />
+              <div>
+                <p>SVG</p>
+                <p class="text-xs text-muted-foreground">
+                  Best for editing in vector software
+                </p>
+              </div>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <!-- <UserButton /> -->
+      </div>
+    </div>
+  </nav>
 </template>
