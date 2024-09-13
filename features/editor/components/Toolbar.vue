@@ -1,6 +1,378 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { FaBold, FaItalic, FaStrikethrough, FaUnderline } from "vue3-icons/fa";
+import { TbColorFilter } from "vue3-icons/tb";
+import { BsBorderWidth } from "vue3-icons/bs";
+import { RxTransparencyGrid } from "vue3-icons/rx";
+import {
+  ArrowUp,
+  ArrowDown,
+  ChevronDown,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  Trash,
+  SquareSplitHorizontal,
+  Copy,
+} from "lucide-vue-next";
+
+import { isTextType } from "@/features/editor/utils";
+import FontSizeInput from "@/features/editor/components/FontSizeInput.vue";
+import {
+  type ActiveTool,
+  type Editor,
+  FONT_SIZE,
+  FONT_WEIGHT,
+} from "@/features/editor/types";
+import { cn } from "@/lib/utils";
+import Hint from "@/components/Hint.vue";
+import { Button } from "@/components/ui/button";
+
+interface ToolbarProps {
+  editor: Editor | undefined;
+  activeTool: ActiveTool;
+}
+
+const props = defineProps<ToolbarProps>();
+
+const emit = defineEmits<{
+  (e: "onChangeActiveTool", tool: ActiveTool): void;
+}>();
+
+const initialFillColor = props.editor?.getActiveFillColor();
+const initialStrokeColor = props.editor?.getActiveStrokeColor();
+const initialFontFamily = props.editor?.getActiveFontFamily();
+const initialFontWeight = props.editor?.getActiveFontWeight() || FONT_WEIGHT;
+const initialFontStyle = props.editor?.getActiveFontStyle();
+const initialFontLinethrough = props.editor?.getActiveFontLinethrough();
+const initialFontUnderline = props.editor?.getActiveFontUnderline();
+const initialTextAlign = props.editor?.getActiveTextAlign();
+const initialFontSize = props.editor?.getActiveFontSize() || FONT_SIZE;
+
+const properties = reactive({
+  fillColor: initialFillColor,
+  strokeColor: initialStrokeColor,
+  fontFamily: initialFontFamily,
+  fontWeight: initialFontWeight,
+  fontStyle: initialFontStyle,
+  fontLinethrough: initialFontLinethrough,
+  fontUnderline: initialFontUnderline,
+  textAlign: initialTextAlign,
+  fontSize: initialFontSize,
+});
+
+const selectedObject = props.editor?.selectedObjects[0];
+const selectedObjectType = props.editor?.selectedObjects[0]?.type;
+
+const isText = isTextType(selectedObjectType);
+const isImage = selectedObjectType === "image";
+
+const onChangeFontSize = (value: number) => {
+  if (!selectedObject) {
+    return;
+  }
+
+  props.editor?.changeFontSize(value);
+  properties.fontSize = value;
+};
+
+const onChangeTextAlign = (value: string) => {
+  if (!selectedObject) {
+    return;
+  }
+
+  props.editor?.changeTextAlign(value);
+  properties.textAlign = value;
+};
+
+const toggleBold = () => {
+  if (!selectedObject) {
+    return;
+  }
+
+  const newValue = properties.fontWeight > 500 ? 500 : 700;
+
+  props.editor?.changeFontWeight(newValue);
+  properties.fontWeight = newValue;
+};
+
+const toggleItalic = () => {
+  if (!selectedObject) {
+    return;
+  }
+
+  const isItalic = properties.fontStyle === "italic";
+  const newValue = isItalic ? "normal" : "italic";
+
+  props.editor?.changeFontStyle(newValue);
+
+  properties.fontStyle = newValue;
+};
+
+const toggleLinethrough = () => {
+  if (!selectedObject) {
+    return;
+  }
+
+  const newValue = properties.fontLinethrough ? false : true;
+
+  props.editor?.changeFontLinethrough(newValue);
+  properties.fontLinethrough = newValue;
+};
+
+const toggleUnderline = () => {
+  if (!selectedObject) {
+    return;
+  }
+
+  const newValue = properties.fontUnderline ? false : true;
+  props.editor?.changeFontUnderline(newValue);
+  properties.fontUnderline = newValue;
+};
+
+const onChangeActiveTool = (tool: ActiveTool) => {
+  emit("onChangeActiveTool", tool);
+};
+</script>
+
 <template>
   <div
+    v-if="editor?.selectedObjects.length === 0"
     class="shrink-0 h-[56px] border-b bg-white w-full flex items-center overflow-x-auto z-[49] p-2 gap-x-2"
   ></div>
+  <div
+    v-else
+    class="shrink-0 h-[56px] border-b bg-white w-full flex items-center overflow-x-auto z-[49] p-2 gap-x-2"
+  >
+    <div v-if="isImage" class="flex items-center h-full justify-center">
+      <Hint label="Color" side="bottom" :sideOffset="5">
+        <Button
+          @click="onChangeActiveTool('fill')"
+          size="icon"
+          variant="ghost"
+          :class="cn(activeTool === 'fill' && 'bg-gray-100')"
+        >
+          <div
+            class="rounded-sm size-4 border"
+            :style="{ backgroundColor: properties.fillColor }"
+          />
+        </Button>
+      </Hint>
+    </div>
+
+    <div v-if="!isText" class="flex items-center h-full justify-center">
+      <Hint label="Stroke color" side="bottom" :sideOffset="5">
+        <Button
+          @click="onChangeActiveTool('stroke-color')"
+          size="icon"
+          variant="ghost"
+          :class="cn(activeTool === 'stroke-color' && 'bg-gray-100')"
+        >
+          <div
+            class="rounded-sm size-4 border-2 bg-white"
+            :style="{ borderColor: properties.strokeColor }"
+          />
+        </Button>
+      </Hint>
+    </div>
+
+    <div v-if="!isText" class="flex items-center h-full justify-center">
+      <Hint label="Stroke width" side="bottom" :sideOffset="5">
+        <Button
+          @click="onChangeActiveTool('stroke-width')"
+          size="icon"
+          variant="ghost"
+          :class="cn(activeTool === 'stroke-width' && 'bg-gray-100')"
+        >
+          <BsBorderWidth class="size-4" />
+        </Button>
+      </Hint>
+    </div>
+
+    <template v-if="isText">
+      <div class="flex items-center h-full justify-center">
+        <Hint label="Font" side="bottom" :sideOffset="5">
+          <Button
+            @click="onChangeActiveTool('font')"
+            size="icon"
+            variant="ghost"
+            :class="
+              cn('w-auto px-2 text-sm', activeTool === 'font' && 'bg-gray-100')
+            "
+          >
+            <div class="max-w-[100px] truncate">
+              {{ properties.fontFamily }}
+            </div>
+            <ChevronDown class="size-4 ml-2 shrink-0" />
+          </Button>
+        </Hint>
+      </div>
+
+      <div class="flex items-center h-full justify-center">
+        <Hint label="Bold" side="bottom" :sideOffset="5">
+          <Button
+            @click="toggleBold()"
+            size="icon"
+            variant="ghost"
+            :class="cn(properties.fontWeight > 500 && 'bg-gray-100')"
+          >
+            <FaBold class="size-4" />
+          </Button>
+        </Hint>
+      </div>
+
+      <div class="flex items-center h-full justify-center">
+        <Hint label="Italic" side="bottom" :sideOffset="5">
+          <Button
+            @click="toggleItalic()"
+            size="icon"
+            variant="ghost"
+            :class="cn(properties.fontStyle === 'italic' && 'bg-gray-100')"
+          >
+            <FaItalic class="size-4" />
+          </Button>
+        </Hint>
+      </div>
+      <div class="flex items-center h-full justify-center">
+        <Hint label="Underline" side="bottom" :sideOffset="5">
+          <Button
+            @click="toggleUnderline()"
+            size="icon"
+            variant="ghost"
+            :class="cn(properties.fontUnderline && 'bg-gray-100')"
+          >
+            <FaUnderline class="size-4" />
+          </Button>
+        </Hint>
+      </div>
+      <div class="flex items-center h-full justify-center">
+        <Hint label="Strike" side="bottom" :sideOffset="5">
+          <Button
+            @click="toggleLinethrough()"
+            size="icon"
+            variant="ghost"
+            :class="cn(properties.fontLinethrough && 'bg-gray-100')"
+          >
+            <FaStrikethrough class="size-4" />
+          </Button>
+        </Hint>
+      </div>
+      <div class="flex items-center h-full justify-center">
+        <Hint label="Align left" side="bottom" :sideOffset="5">
+          <Button
+            @click="onChangeTextAlign('left')"
+            size="icon"
+            variant="ghost"
+            :class="cn(properties.textAlign === 'bg-gray-100' && 'bg-gray-100')"
+          >
+            <AlignLeft class="size-4" />
+          </Button>
+        </Hint>
+      </div>
+
+      <div class="flex items-center h-full justify-center">
+        <Hint label="Align center" side="bottom" :sideOffset="5">
+          <Button
+            @click="onChangeTextAlign('center')"
+            size="icon"
+            variant="ghost"
+            :class="cn(properties.textAlign === 'center' && 'bg-gray-100')"
+          >
+            <AlignCenter class="size-4" />
+          </Button>
+        </Hint>
+      </div>
+      <div class="flex items-center h-full justify-center">
+        <Hint label="Align right" side="bottom" :sideOffset="5">
+          <Button
+            @click="onChangeTextAlign('right')"
+            size="icon"
+            variant="ghost"
+            :class="cn(properties.textAlign === 'right' && 'bg-gray-100')"
+          >
+            <AlignRight class="size-4" />
+          </Button>
+        </Hint>
+      </div>
+      <div class="flex items-center h-full justify-center">
+        <FontSizeInput
+          :value="properties.fontSize"
+          @onChange="onChangeFontSize"
+        />
+      </div>
+    </template>
+
+    <div v-if="isImage" class="flex items-center h-full justify-center">
+      <Hint label="Filters" side="bottom" :sideOffset="5">
+        <Button
+          @click="onChangeActiveTool('filter')"
+          size="icon"
+          variant="ghost"
+          :class="cn(activeTool === 'filter' && 'bg-gray-100')"
+        >
+          <TbColorFilter class="size-4" />
+        </Button>
+      </Hint>
+    </div>
+
+    <div v-if="isImage" class="flex items-center h-full justify-center">
+      <Hint label="Remove background" side="bottom" :sideOffset="5">
+        <Button
+          @click="onChangeActiveTool('remove-bg')"
+          size="icon"
+          variant="ghost"
+          :class="cn(activeTool === 'remove-bg' && 'bg-gray-100')"
+        >
+          <SquareSplitHorizontal class="size-4" />
+        </Button>
+      </Hint>
+    </div>
+
+    <div class="flex items-center h-full justify-center">
+      <Hint label="Bring forward" side="bottom" :sideOffset="5">
+        <Button @click="editor?.bringForward()" size="icon" variant="ghost">
+          <ArrowUp class="size-4" />
+        </Button>
+      </Hint>
+    </div>
+    <div class="flex items-center h-full justify-center">
+      <Hint label="Send backwards" side="bottom" :sideOffset="5">
+        <Button @click="editor?.sendBackwards()" size="icon" variant="ghost">
+          <ArrowDown class="size-4" />
+        </Button>
+      </Hint>
+    </div>
+    <div class="flex items-center h-full justify-center">
+      <Hint label="Opacity" side="bottom" :sideOffset="5">
+        <Button
+          @click="onChangeActiveTool('opacity')"
+          size="icon"
+          variant="ghost"
+          :class="cn(activeTool === 'opacity' && 'bg-gray-100')"
+        >
+          <RxTransparencyGrid class="size-4" />
+        </Button>
+      </Hint>
+    </div>
+    <div class="flex items-center h-full justify-center">
+      <Hint label="Duplicate" side="bottom" :sideOffset="5">
+        <Button
+          @click="
+            editor?.onCopy();
+            editor?.onPaste();
+          "
+          size="icon"
+          variant="ghost"
+        >
+          <Copy class="size-4" />
+        </Button>
+      </Hint>
+    </div>
+    <div class="flex items-center h-full justify-center">
+      <Hint label="Delete" side="bottom" :sideOffset="5">
+        <Button @click="editor?.delete()" size="icon" variant="ghost">
+          <Trash class="size-4" />
+        </Button>
+      </Hint>
+    </div>
+  </div>
 </template>
