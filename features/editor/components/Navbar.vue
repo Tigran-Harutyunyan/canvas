@@ -29,6 +29,7 @@ interface NavbarProps {
 }
 
 const props = defineProps<NavbarProps>();
+
 const emit = defineEmits<{
   (e: "onChangeActiveTool", tool: ActiveTool): void;
 }>();
@@ -65,29 +66,48 @@ const isError = ref(false);
           variant="ghost"
           size="icon"
           :class="cn(props.activeTool === 'select' && 'bg-gray-100')"
+          @click="emit('onChangeActiveTool', 'select')"
         >
           <MousePointerClick class="size-4" />
         </Button>
       </Hint>
       <Hint label="Undo" side="bottom" :sideOffset="10">
-        <Button variant="ghost" size="icon">
+        <Button
+          variant="ghost"
+          size="icon"
+          :disabled="!editor?.canUndo()"
+          @click="editor?.onUndo()"
+        >
           <Undo2 class="size-4" />
         </Button>
       </Hint>
       <Hint label="Redo" side="bottom" :sideOffset="10">
-        <Button variant="ghost" size="icon">
+        <Button
+          variant="ghost"
+          size="icon"
+          :disabled="!editor?.canRedo()"
+          @click="editor?.onRedo()"
+        >
           <Redo2 class="size-4" />
         </Button>
       </Hint>
       <Separator orientation="vertical" class="mx-2" />
+
       <div v-if="isPending" class="flex items-center gap-x-2">
         <Loader class="size-4 animate-spin text-muted-foreground" />
         <div class="text-xs text-muted-foreground">Saving...</div>
       </div>
+
+      <div v-if="!isPending && isError" class="flex items-center gap-x-2">
+        <BsCloudSlash class="size-[20px] text-muted-foreground" />
+        <div class="text-xs text-muted-foreground">Failed to save</div>
+      </div>
+
       <div v-if="!isPending && !isError" class="flex items-center gap-x-2">
         <BsCloudCheck class="size-[20px] text-muted-foreground" />
         <div class="text-xs text-muted-foreground">Saved</div>
       </div>
+
       <div class="ml-auto flex items-center gap-x-4">
         <DropdownMenu :modal="false">
           <DropdownMenuTrigger as-child>
