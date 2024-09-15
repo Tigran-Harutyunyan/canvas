@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { cn } from "@/lib/utils";
 import {
   type ActiveTool,
   type Editor,
@@ -13,7 +12,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface FillColorSidebarProps {
   editor: Editor | undefined;
-  activeTool: ActiveTool;
 }
 
 const props = defineProps<FillColorSidebarProps>();

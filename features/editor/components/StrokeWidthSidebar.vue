@@ -18,7 +18,6 @@ import ToolSidebarHeader from "@/features/editor/components/ToolSidebarHeader.vu
 
 interface StrokeWidthSidebarProps {
   editor: Editor | undefined;
-  activeTool: ActiveTool;
 }
 
 const props = defineProps<StrokeWidthSidebarProps>();

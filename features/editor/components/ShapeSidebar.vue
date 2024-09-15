@@ -11,7 +11,6 @@ import ToolSidebarHeader from "@/features/editor/components/ToolSidebarHeader.vu
 
 interface ShapeSidebarProps {
   editor: Editor | undefined;
-  activeTool: ActiveTool;
 }
 
 const props = defineProps<ShapeSidebarProps>();

@@ -12,7 +12,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface StrokeColorSidebarProps {
   editor: Editor | undefined;
-  activeTool: ActiveTool;
 }
 
 const props = defineProps<StrokeColorSidebarProps>();
