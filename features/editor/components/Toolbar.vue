@@ -38,36 +38,30 @@ const emit = defineEmits<{
   (e: "onChangeActiveTool", tool: ActiveTool): void;
 }>();
 
-const initialFillColor = props.editor?.getActiveFillColor();
-const initialStrokeColor = props.editor?.getActiveStrokeColor();
-const initialFontFamily = props.editor?.getActiveFontFamily();
-const initialFontWeight = props.editor?.getActiveFontWeight() || FONT_WEIGHT;
-const initialFontStyle = props.editor?.getActiveFontStyle();
-const initialFontLinethrough = props.editor?.getActiveFontLinethrough();
-const initialFontUnderline = props.editor?.getActiveFontUnderline();
-const initialTextAlign = props.editor?.getActiveTextAlign();
-const initialFontSize = props.editor?.getActiveFontSize() || FONT_SIZE;
-
-const properties = reactive({
-  fillColor: initialFillColor,
-  strokeColor: initialStrokeColor,
-  fontFamily: initialFontFamily,
-  fontWeight: initialFontWeight,
-  fontStyle: initialFontStyle,
-  fontLinethrough: initialFontLinethrough,
-  fontUnderline: initialFontUnderline,
-  textAlign: initialTextAlign,
-  fontSize: initialFontSize,
+const properties = computed(() => {
+  return {
+    fillColor: props.editor?.getActiveFillColor(),
+    strokeColor: props.editor?.getActiveStrokeColor(),
+    fontFamily: props.editor?.getActiveFontFamily(),
+    fontWeight: props.editor?.getActiveFontWeight() || FONT_WEIGHT,
+    fontStyle: props.editor?.getActiveFontStyle(),
+    fontLinethrough: props.editor?.getActiveFontLinethrough(),
+    fontUnderline: props.editor?.getActiveFontUnderline(),
+    textAlign: props.editor?.getActiveTextAlign(),
+    fontSize: props.editor?.getActiveFontSize() || FONT_SIZE,
+  };
 });
 
-const selectedObject = props.editor?.selectedObjects[0];
-const selectedObjectType = props.editor?.selectedObjects[0]?.type;
+const selectedObject = computed(() => props.editor?.selectedObjects[0]);
+const selectedObjectType = computed(
+  () => props.editor?.selectedObjects[0]?.type
+);
 
-const isText = isTextType(selectedObjectType);
-const isImage = selectedObjectType === "image";
+const isText = computed(() => isTextType(selectedObjectType.value));
+const isImage = computed(() => selectedObjectType.value === "image");
 
 const onChangeFontSize = (value: number) => {
-  if (!selectedObject) {
+  if (!selectedObject.value) {
     return;
   }
 
@@ -76,7 +70,7 @@ const onChangeFontSize = (value: number) => {
 };
 
 const onChangeTextAlign = (value: string) => {
-  if (!selectedObject) {
+  if (!selectedObject.value) {
     return;
   }
 
@@ -85,7 +79,7 @@ const onChangeTextAlign = (value: string) => {
 };
 
 const toggleBold = () => {
-  if (!selectedObject) {
+  if (!selectedObject.value) {
     return;
   }
 
@@ -96,7 +90,7 @@ const toggleBold = () => {
 };
 
 const toggleItalic = () => {
-  if (!selectedObject) {
+  if (!selectedObject.value) {
     return;
   }
 
@@ -109,7 +103,7 @@ const toggleItalic = () => {
 };
 
 const toggleLinethrough = () => {
-  if (!selectedObject) {
+  if (!selectedObject.value) {
     return;
   }
 
@@ -120,7 +114,7 @@ const toggleLinethrough = () => {
 };
 
 const toggleUnderline = () => {
-  if (!selectedObject) {
+  if (!selectedObject.value) {
     return;
   }
 
@@ -143,7 +137,7 @@ const onChangeActiveTool = (tool: ActiveTool) => {
     v-else
     class="shrink-0 h-[56px] border-b bg-white w-full flex items-center overflow-x-auto z-[49] p-2 gap-x-2"
   >
-    <div v-if="isImage" class="flex items-center h-full justify-center">
+    <div v-if="!isImage" class="flex items-center h-full justify-center">
       <Hint label="Color" side="bottom" :sideOffset="5">
         <Button
           @click="onChangeActiveTool('fill')"
