@@ -3,7 +3,6 @@ import { IoTriangle } from "vue3-icons/io5";
 import { FaDiamond } from "vue3-icons/fa6";
 import { FaCircle, FaSquare, FaSquareFull } from "vue3-icons/fa";
 
-import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { type ActiveTool, type Editor } from "@/features/editor/types";
 import ShapeTool from "@/features/editor/components/ShapeTool.vue";
@@ -27,12 +26,7 @@ const onClose = () => {
 </script>
 <template>
   <aside
-    :class="
-      cn(
-        'bg-white relative border-r z-[40] w-[360px] h-full flex flex-col',
-        props.activeTool === 'shapes' ? 'visible' : 'hidden'
-      )
-    "
+    class="bg-white relative border-r z-[40] w-[360px] h-full flex flex-col visible"
   >
     <ToolSidebarHeader title="Shapes" description="Add shapes to your canvas" />
     <ScrollArea>
