@@ -22,7 +22,7 @@ const emit = defineEmits<{
     :class="
       cn(
         'w-full h-full aspect-video p-3 py-4 flex flex-col rounded-none',
-        props.isActive && 'bg-muted text-primary'
+        isActive && 'bg-muted text-primary'
       )
     "
   >
