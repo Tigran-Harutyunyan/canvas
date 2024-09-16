@@ -58,21 +58,21 @@ watch(
   () => initialWidth.value,
   () => {
     widthValue.value = initialWidth.value;
-  }
-),
+  },
   {
     immediate: true,
-  };
+  }
+);
 
 watch(
   () => initialType.value,
   () => {
     typeValue.value = initialType.value[0];
-  }
-),
+  },
   {
     immediate: true,
-  };
+  }
+);
 </script>
 <template>
   <aside
