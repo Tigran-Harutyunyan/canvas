@@ -75,7 +75,7 @@ const isError = ref(false);
         <Button
           variant="ghost"
           size="icon"
-          :disabled="!editor?.canUndo()"
+          :disabled="!editor?.canUndo"
           @click="editor?.onUndo()"
         >
           <Undo2 class="size-4" />
@@ -85,7 +85,7 @@ const isError = ref(false);
         <Button
           variant="ghost"
           size="icon"
-          :disabled="!editor?.canRedo()"
+          :disabled="!editor?.canRedo"
           @click="editor?.onRedo()"
         >
           <Redo2 class="size-4" />
