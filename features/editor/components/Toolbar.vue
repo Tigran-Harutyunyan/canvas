@@ -38,19 +38,7 @@ const emit = defineEmits<{
   (e: "onChangeActiveTool", tool: ActiveTool): void;
 }>();
 
-const properties = computed(() => {
-  return {
-    fillColor: props.editor?.getActiveFillColor(),
-    strokeColor: props.editor?.getActiveStrokeColor(),
-    fontFamily: props.editor?.getActiveFontFamily(),
-    fontWeight: props.editor?.getActiveFontWeight() || FONT_WEIGHT,
-    fontStyle: props.editor?.getActiveFontStyle(),
-    fontLinethrough: props.editor?.getActiveFontLinethrough(),
-    fontUnderline: props.editor?.getActiveFontUnderline(),
-    textAlign: props.editor?.getActiveTextAlign(),
-    fontSize: props.editor?.getActiveFontSize() || FONT_SIZE,
-  };
-});
+const properties = ref();
 
 const selectedObject = computed(() => props.editor?.selectedObjects[0]);
 const selectedObjectType = computed(
@@ -66,7 +54,7 @@ const onChangeFontSize = (value: number) => {
   }
 
   props.editor?.changeFontSize(value);
-  properties.fontSize = value;
+  properties.value.fontSize = value;
 };
 
 const onChangeTextAlign = (value: string) => {
@@ -75,7 +63,7 @@ const onChangeTextAlign = (value: string) => {
   }
 
   props.editor?.changeTextAlign(value);
-  properties.textAlign = value;
+  properties.value.textAlign = value;
 };
 
 const toggleBold = () => {
@@ -83,10 +71,10 @@ const toggleBold = () => {
     return;
   }
 
-  const newValue = properties.fontWeight > 500 ? 500 : 700;
+  const newValue = properties.value.fontWeight > 500 ? 500 : 700;
 
   props.editor?.changeFontWeight(newValue);
-  properties.fontWeight = newValue;
+  properties.value.fontWeight = newValue;
 };
 
 const toggleItalic = () => {
@@ -94,12 +82,12 @@ const toggleItalic = () => {
     return;
   }
 
-  const isItalic = properties.fontStyle === "italic";
+  const isItalic = properties.value.fontStyle === "italic";
   const newValue = isItalic ? "normal" : "italic";
 
   props.editor?.changeFontStyle(newValue);
 
-  properties.fontStyle = newValue;
+  properties.value.fontStyle = newValue;
 };
 
 const toggleLinethrough = () => {
@@ -107,10 +95,10 @@ const toggleLinethrough = () => {
     return;
   }
 
-  const newValue = properties.fontLinethrough ? false : true;
+  const newValue = properties.value.fontLinethrough ? false : true;
 
   props.editor?.changeFontLinethrough(newValue);
-  properties.fontLinethrough = newValue;
+  properties.value.fontLinethrough = newValue;
 };
 
 const toggleUnderline = () => {
@@ -118,14 +106,38 @@ const toggleUnderline = () => {
     return;
   }
 
-  const newValue = properties.fontUnderline ? false : true;
+  const newValue = properties.value.fontUnderline ? false : true;
   props.editor?.changeFontUnderline(newValue);
-  properties.fontUnderline = newValue;
+  properties.value.fontUnderline = newValue;
 };
 
 const onChangeActiveTool = (tool: ActiveTool) => {
   emit("onChangeActiveTool", tool);
 };
+
+const updateValues = () => {
+  properties.value = {
+    fillColor: props.editor?.getActiveFillColor(),
+    strokeColor: props.editor?.getActiveStrokeColor(),
+    fontFamily: props.editor?.getActiveFontFamily(),
+    fontWeight: props.editor?.getActiveFontWeight() || FONT_WEIGHT,
+    fontStyle: props.editor?.getActiveFontStyle(),
+    fontLinethrough: props.editor?.getActiveFontLinethrough(),
+    fontUnderline: props.editor?.getActiveFontUnderline(),
+    textAlign: props.editor?.getActiveTextAlign(),
+    fontSize: props.editor?.getActiveFontSize() || FONT_SIZE,
+  };
+};
+watch(
+  () => props.editor?.selectedObjects,
+  () => {
+    updateValues();
+  }
+);
+
+onMounted(() => {
+  updateValues();
+});
 </script>
 
 <template>
@@ -289,6 +301,7 @@ const onChangeActiveTool = (tool: ActiveTool) => {
       </div>
       <div class="flex items-center h-full justify-center">
         <FontSizeInput
+          :editor="editor"
           :value="properties.fontSize"
           @onChange="onChangeFontSize"
         />
