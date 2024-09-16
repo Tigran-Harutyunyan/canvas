@@ -1,7 +1,9 @@
-const animate = require("tailwindcss-animate");
+import type { Config } from "tailwindcss";
 
+const animate = require("tailwindcss-animate");
+import { withUt } from "uploadthing/tw";
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+const config = {
   darkMode: ["class"],
   safelist: ["dark"],
   prefix: "",
@@ -80,4 +82,6 @@ module.exports = {
     },
   },
   plugins: [animate],
-};
+} satisfies Config;
+
+export default withUt(config);;
