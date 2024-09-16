@@ -2,6 +2,8 @@ import { fabric } from "fabric";
 import { useAutoResize } from "~/features/editor/composables/useAutoResize";
 import { useCanvasEvents } from "~/features/editor/composables/useCanvasEvents";
 import { useHistory } from "~/features/editor/composables/useHistory";
+import { useClipboard } from "~/features/editor/composables/useClipboard";
+import { useHotkeys } from "~/features/editor/composables/useHotkeys";
 import {
     createFilter,
     downloadFile,
@@ -34,30 +36,30 @@ export const useEditor = ({
     saveCallback,
 }: EditorHookProps) => {
 
-    const canvas = ref<fabric.Canvas>();
+    let canvas: fabric.Canvas;
     const container = ref<HTMLDivElement>();
     const selectedObjects = ref<fabric.Object[]>([]);
 
-    const fontFamily = FONT_FAMILY;
-    const fillColor = FILL_COLOR;
-    const strokeColor = STROKE_COLOR;
-    const strokeWidth = STROKE_WIDTH;
+    let fontFamily = FONT_FAMILY;
+    let fillColor = FILL_COLOR;
+    let strokeColor = STROKE_COLOR;
+    let strokeWidth = STROKE_WIDTH;
+    let strokeDashArray = STROKE_DASH_ARRAY;
 
     const setSelectedObjects = (selected: fabric.Object[]) => {
         selectedObjects.value = selected;
     }
-
+    const { copy, paste, setClipboardCanvas } = useClipboard();
     const { autoZoom, observe } = useAutoResize();
     const {
         save,
-        canRedo,
-        canUndo,
         undo,
         redo,
+        canRedo,
+        canUndo,
         canvasHistory,
-        setHistoryIndex,
+        setHistoryCanvas,
     } = useHistory({
-        canvas: canvas.value,
         saveCallback
     });
 
@@ -67,13 +69,6 @@ export const useEditor = ({
         clearSelectionCallback,
     });
 
-    const addToCanvas = (object: fabric.Object) => {
-        if (!canvas.value) return;
-        // center(object);
-        canvas.value.add(object);
-        canvas.value.setActiveObject(object);
-    };
-
     const buildEditor = ({
         canvas,
         fillColor,
@@ -81,6 +76,67 @@ export const useEditor = ({
         strokeWidth,
         strokeDashArray,
     }: BuildEditorProps) => {
+        const generateSaveOptions = () => {
+            const { width, height, left, top } = getWorkspace() as fabric.Rect;
+
+            return {
+                name: "Image",
+                format: "png",
+                quality: 1,
+                width,
+                height,
+                left,
+                top,
+            };
+        };
+
+        const savePng = () => {
+            const options = generateSaveOptions();
+
+            canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+            const dataUrl = canvas.toDataURL(options);
+
+            downloadFile(dataUrl, "png");
+            autoZoom();
+        };
+
+        const saveSvg = () => {
+            const options = generateSaveOptions();
+
+            canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+            const dataUrl = canvas.toDataURL(options);
+
+            downloadFile(dataUrl, "svg");
+            autoZoom();
+        };
+
+        const saveJpg = () => {
+            const options = generateSaveOptions();
+
+            canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+            const dataUrl = canvas.toDataURL(options);
+
+            downloadFile(dataUrl, "jpg");
+            autoZoom();
+        };
+
+        const saveJson = async () => {
+            const dataUrl = canvas.toJSON(JSON_KEYS);
+
+            await transformText(dataUrl.objects);
+            const fileString = `data:text/json;charset=utf-8,${encodeURIComponent(
+                JSON.stringify(dataUrl, null, "\t"),
+            )}`;
+            downloadFile(fileString, "json");
+        };
+
+        const loadJson = (json: string) => {
+            const data = JSON.parse(json);
+
+            canvas.loadFromJSON(data, () => {
+                autoZoom();
+            });
+        };
 
         const getWorkspace = () => {
             return canvas
@@ -105,7 +161,48 @@ export const useEditor = ({
         };
 
         return {
+            savePng,
+            saveJpg,
+            saveSvg,
+            saveJson,
+            loadJson,
             getWorkspace,
+            changeFillColor: (value: string) => {
+                fillColor = value;
+                canvas.getActiveObjects().forEach((object) => {
+                    object.set({ fill: value });
+                });
+                canvas.renderAll();
+            },
+            changeStrokeColor: (value: string) => {
+                strokeColor = value;
+                canvas.getActiveObjects().forEach((object) => {
+                    // Text types don't have stroke
+                    if (isTextType(object.type)) {
+                        object.set({ fill: value });
+                        return;
+                    }
+
+                    object.set({ stroke: value });
+                });
+                canvas.freeDrawingBrush.color = value;
+                canvas.renderAll();
+            },
+            changeStrokeWidth: (value: number) => {
+                strokeWidth = value;
+                canvas.getActiveObjects().forEach((object) => {
+                    object.set({ strokeWidth: value });
+                });
+                canvas.freeDrawingBrush.width = value;
+                canvas.renderAll();
+            },
+            changeStrokeDashArray: (value: number[]) => {
+                strokeDashArray = value;
+                canvas.getActiveObjects().forEach((object) => {
+                    object.set({ strokeDashArray: value });
+                });
+                canvas.renderAll();
+            },
             addCircle: () => {
                 const object = markRaw(new fabric.Circle({
                     ...CIRCLE_OPTIONS,
@@ -194,13 +291,349 @@ export const useEditor = ({
                 ));
                 addToCanvas(object);
             },
-            canvas,
+            getActiveFontWeight: () => {
+                const selectedObject = selectedObjects.value[0];
 
+                if (!selectedObject) {
+                    return FONT_WEIGHT;
+                }
+
+                // @ts-ignore
+                // Faulty TS library, fontWeight exists.
+                const value = selectedObject.get("fontWeight") || FONT_WEIGHT;
+
+                return value;
+            },
+            getActiveFontFamily: () => {
+                const selectedObject = selectedObjects.value[0];
+
+                if (!selectedObject) {
+                    return fontFamily;
+                }
+
+                // @ts-ignore
+                // Faulty TS library, fontFamily exists.
+                const value = selectedObject.get("fontFamily") || fontFamily;
+
+                return value;
+            },
+            getActiveFillColor: () => {
+                const selectedObject = selectedObjects.value[0];
+
+                if (!selectedObject) {
+                    return fillColor;
+                }
+
+                const value = selectedObject.get("fill") || fillColor;
+
+                // Currently, gradients & patterns are not supported
+                return value as string;
+            },
+            getActiveStrokeColor: () => {
+                const selectedObject = selectedObjects.value[0];
+
+                if (!selectedObject) {
+                    return strokeColor;
+                }
+
+                const value = selectedObject.get("stroke") || strokeColor;
+
+                return value;
+            },
+            getActiveStrokeWidth: () => {
+                const selectedObject = selectedObjects.value[0];
+
+                if (!selectedObject) {
+                    return strokeWidth;
+                }
+
+                const value = selectedObject.get("strokeWidth") || strokeWidth;
+
+                return value;
+            },
+            getActiveStrokeDashArray: () => {
+                const selectedObject = selectedObjects.value[0];
+
+                if (!selectedObject) {
+                    return strokeDashArray;
+                }
+
+                const value = selectedObject.get("strokeDashArray") || strokeDashArray;
+
+                return value;
+            },
+            addText: (value, options) => {
+                const object = markRaw(new fabric.Textbox(value, {
+                    ...TEXT_OPTIONS,
+                    fill: fillColor,
+                    ...options,
+                }));
+
+                addToCanvas(object);
+            },
+            getActiveOpacity: () => {
+                const selectedObject = selectedObjects.value[0];
+
+                if (!selectedObject) {
+                    return 1;
+                }
+
+                const value = selectedObject.get("opacity") || 1;
+
+                return value;
+            },
+            changeFontSize: (value: number) => {
+                canvas.getActiveObjects().forEach((object) => {
+                    if (isTextType(object.type)) {
+                        // @ts-ignore
+                        // Faulty TS library, fontSize exists.
+                        object.set({ fontSize: value });
+                    }
+                });
+                canvas.renderAll();
+            },
+            getActiveFontSize: () => {
+                const selectedObject = selectedObjects.value[0];
+
+                if (!selectedObject) {
+                    return FONT_SIZE;
+                }
+
+                // @ts-ignore
+                // Faulty TS library, fontSize exists.
+                const value = selectedObject.get("fontSize") || FONT_SIZE;
+
+                return value;
+            },
+            changeTextAlign: (value: string) => {
+                canvas.getActiveObjects().forEach((object) => {
+                    if (isTextType(object.type)) {
+                        // @ts-ignore
+                        // Faulty TS library, textAlign exists.
+                        object.set({ textAlign: value });
+                    }
+                });
+                canvas.renderAll();
+            },
+            getActiveTextAlign: () => {
+                const selectedObject = selectedObjects.value[0];
+
+                if (!selectedObject) {
+                    return "left";
+                }
+
+                // @ts-ignore
+                // Faulty TS library, textAlign exists.
+                const value = selectedObject.get("textAlign") || "left";
+
+                return value;
+            },
+            changeFontUnderline: (value: boolean) => {
+                canvas.getActiveObjects().forEach((object) => {
+                    if (isTextType(object.type)) {
+                        // @ts-ignore
+                        // Faulty TS library, underline exists.
+                        object.set({ underline: value });
+                    }
+                });
+                canvas.renderAll();
+            },
+            getActiveFontUnderline: () => {
+                const selectedObject = selectedObjects.value[0];
+
+                if (!selectedObject) {
+                    return false;
+                }
+
+                // @ts-ignore
+                // Faulty TS library, underline exists.
+                const value = selectedObject.get("underline") || false;
+
+                return value;
+            },
+            changeFontLinethrough: (value: boolean) => {
+                canvas.getActiveObjects().forEach((object) => {
+                    if (isTextType(object.type)) {
+                        // @ts-ignore
+                        // Faulty TS library, linethrough exists.
+                        object.set({ linethrough: value });
+                    }
+                });
+                canvas.renderAll();
+            },
+            getActiveFontLinethrough: () => {
+                const selectedObject = selectedObjects.value[0];
+
+                if (!selectedObject) {
+                    return false;
+                }
+
+                // @ts-ignore
+                // Faulty TS library, linethrough exists.
+                const value = selectedObject.get("linethrough") || false;
+
+                return value;
+            },
+            changeFontStyle: (value: string) => {
+                canvas.getActiveObjects().forEach((object) => {
+                    if (isTextType(object.type)) {
+                        // @ts-ignore
+                        // Faulty TS library, fontStyle exists.
+                        object.set({ fontStyle: value });
+                    }
+                });
+                canvas.renderAll();
+            },
+            getActiveFontStyle: () => {
+                const selectedObject = selectedObjects.value[0];
+
+                if (!selectedObject) {
+                    return "normal";
+                }
+
+                // @ts-ignore
+                // Faulty TS library, fontStyle exists.
+                const value = selectedObject.get("fontStyle") || "normal";
+
+                return value;
+            },
+            changeFontWeight: (value: number) => {
+                canvas.getActiveObjects().forEach((object) => {
+                    if (isTextType(object.type)) {
+                        // @ts-ignore
+                        // Faulty TS library, fontWeight exists.
+                        object.set({ fontWeight: value });
+                    }
+                });
+                canvas.renderAll();
+            },
+            changeOpacity: (value: number) => {
+                canvas.getActiveObjects().forEach((object) => {
+                    object.set({ opacity: value });
+                });
+                canvas.renderAll();
+            },
+            changeFontFamily: (value: string) => {
+                fontFamily = value;
+                canvas.getActiveObjects().forEach((object) => {
+                    if (isTextType(object.type)) {
+                        // @ts-ignore
+                        // Faulty TS library, fontFamily exists.
+                        object.set({ fontFamily: value });
+                    }
+                });
+                canvas.renderAll();
+            },
+            bringForward: () => {
+                canvas.getActiveObjects().forEach((object) => {
+                    canvas.bringForward(object);
+                });
+
+                canvas.renderAll();
+
+                const workspace = getWorkspace();
+                workspace?.sendToBack();
+            },
+            sendBackwards: () => {
+                canvas.getActiveObjects().forEach((object) => {
+                    canvas.sendBackwards(object);
+                });
+
+                canvas.renderAll();
+                const workspace = getWorkspace();
+                workspace?.sendToBack();
+            },
+            delete: () => {
+                canvas.getActiveObjects().forEach((object) => canvas.remove(object));
+                canvas.discardActiveObject();
+                canvas.renderAll();
+            },
+            autoZoom,
+            onUndo: () => undo(),
+            onRedo: () => redo(),
+            onCopy: () => copy(),
+            onPaste: () => paste(),
+            zoomIn: () => {
+                let zoomRatio = canvas.getZoom();
+                zoomRatio += 0.05;
+                const center = canvas.getCenter();
+                canvas.zoomToPoint(
+                    new fabric.Point(center.left, center.top),
+                    zoomRatio > 1 ? 1 : zoomRatio
+                );
+            },
+            zoomOut: () => {
+                let zoomRatio = canvas.getZoom();
+                zoomRatio -= 0.05;
+                const center = canvas.getCenter();
+                canvas.zoomToPoint(
+                    new fabric.Point(center.left, center.top),
+                    zoomRatio < 0.2 ? 0.2 : zoomRatio,
+                );
+            },
+            changeSize: (value: { width: number; height: number }) => {
+                const workspace = getWorkspace();
+
+                workspace?.set(value);
+                autoZoom();
+                save();
+            },
+            changeBackground: (value: string) => {
+                const workspace = getWorkspace();
+                workspace?.set({ fill: value });
+                canvas.renderAll();
+                save();
+            },
+            enableDrawingMode: () => {
+                canvas.discardActiveObject();
+                canvas.renderAll();
+                canvas.isDrawingMode = true;
+                canvas.freeDrawingBrush.width = strokeWidth;
+                canvas.freeDrawingBrush.color = strokeColor;
+            },
+            disableDrawingMode: () => {
+                canvas.isDrawingMode = false;
+            },
+            changeImageFilter: (value: string) => {
+                const objects = canvas.getActiveObjects();
+                objects.forEach((object) => {
+                    if (object.type === "image") {
+                        const imageObject = object as fabric.Image;
+
+                        const effect = createFilter(value);
+
+                        imageObject.filters = effect ? [effect] : [];
+                        imageObject.applyFilters();
+                        canvas.renderAll();
+                    }
+                });
+            },
+            addImage: (value: string) => {
+                fabric.Image.fromURL(
+                    value,
+                    (image) => {
+                        const workspace = getWorkspace();
+
+                        image.scaleToWidth(workspace?.width || 0);
+                        image.scaleToHeight(workspace?.height || 0);
+
+                        addToCanvas(image);
+                    },
+                    {
+                        crossOrigin: "anonymous",
+                    },
+                );
+            },
+            canUndo,
+            canRedo,
+            canvasHistory,
+            selectedObjects,
+            canvas,
         };
     };
 
 
-    const editor = ref({});
+    const editor = ref();
 
     const init = ({
         initialCanvas,
@@ -219,7 +652,7 @@ export const useEditor = ({
             cornerStrokeColor: "#3b82f6",
         });
 
-        const initialWorkspace = new fabric.Rect({
+        const initialWorkspace = markRaw(new fabric.Rect({
             width: 900,
             height: 1200,
             name: "clip",
@@ -230,7 +663,7 @@ export const useEditor = ({
                 color: "rgba(0,0,0,0.8)",
                 blur: 5,
             }),
-        });
+        }));
 
         initialCanvas.setWidth(initialContainer.offsetWidth);
         initialCanvas.setHeight(initialContainer.offsetHeight);
@@ -239,26 +672,39 @@ export const useEditor = ({
         initialCanvas.centerObject(initialWorkspace);
         initialCanvas.clipPath = initialWorkspace;
 
-        canvas.value = initialCanvas;
+        canvas = initialCanvas;
         container.value = initialContainer;
 
         observe({
-            canvas: canvas.value,
+            canvas: canvas,
             container: container.value,
         });
 
         editor.value = buildEditor({
-            canvas: canvas.value,
+            canvas,
             fillColor,
             strokeWidth,
             strokeColor,
         });
 
-        setEvents(canvas.value);
+        setHistoryCanvas(canvas);
+
+        setEvents(canvas);
+        setClipboardCanvas(canvas);
+
+        useHotkeys({
+            undo,
+            redo,
+            copy,
+            paste,
+            save,
+            canvas,
+        });
+
     }
 
     return {
         init,
-        editor
+        editor,
     }
 }
