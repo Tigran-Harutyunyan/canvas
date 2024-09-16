@@ -25,16 +25,22 @@ const onClose = () => {
 };
 
 const color = ref();
-color.value = props.editor?.getActiveFillColor() || FILL_COLOR;
 
 const onChange = (value: string) => {
   props.editor?.changeFillColor(value);
 };
 
+onMounted(() => {
+  color.value = props.editor?.getActiveFillColor() || FILL_COLOR;
+});
+
 watch(
   () => props.editor?.selectedObjects,
   () => {
     color.value = props.editor?.getActiveFillColor();
+  },
+  {
+    immediate: true,
   }
 );
 </script>
