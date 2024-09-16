@@ -9,14 +9,14 @@ import {
   Type,
 } from "lucide-vue-next";
 
-import { type ActiveTool } from "@/features/editor/types";
+import { type ActiveTool, activeToolValues } from "@/features/editor/types";
 import SidebarItem from "@/features/editor/components/SidebarItem.vue";
 
 interface SidebarProps {
   activeTool: ActiveTool;
 }
 
-const props = defineProps<SidebarProps>();
+defineProps<SidebarProps>();
 
 const emit = defineEmits<{
   (e: "onChangeActiveTool", tool: ActiveTool): void;
@@ -29,7 +29,7 @@ const emit = defineEmits<{
     <ul class="flex flex-col">
       <SidebarItem
         label="Design"
-        :isActive="props.activeTool === 'templates'"
+        :isActive="activeTool === activeToolValues.TEMPLATES"
         @click="emit('onChangeActiveTool', 'templates')"
       >
         <template #icon>
@@ -39,7 +39,7 @@ const emit = defineEmits<{
 
       <SidebarItem
         label="Image"
-        :isActive="props.activeTool === 'images'"
+        :isActive="activeTool === activeToolValues.IMAGES"
         @click="emit('onChangeActiveTool', 'images')"
       >
         <template #icon>
@@ -49,7 +49,7 @@ const emit = defineEmits<{
 
       <SidebarItem
         label="Text"
-        :isActive="props.activeTool === 'text'"
+        :isActive="activeTool === activeToolValues.TEXT"
         @click="emit('onChangeActiveTool', 'text')"
       >
         <template #icon>
@@ -59,7 +59,7 @@ const emit = defineEmits<{
 
       <SidebarItem
         label="Shapes"
-        :isActive="props.activeTool === 'shapes'"
+        :isActive="activeTool === activeToolValues.SHAPES"
         @click="emit('onChangeActiveTool', 'shapes')"
       >
         <template #icon>
@@ -69,7 +69,7 @@ const emit = defineEmits<{
 
       <SidebarItem
         label="Draw"
-        :isActive="props.activeTool === 'draw'"
+        :isActive="activeTool === activeToolValues.DRAW"
         @click="emit('onChangeActiveTool', 'draw')"
       >
         <template #icon>
@@ -79,7 +79,7 @@ const emit = defineEmits<{
 
       <SidebarItem
         label="AI"
-        :isActive="props.activeTool === 'ai'"
+        :isActive="activeTool === activeToolValues.AI"
         @click="emit('onChangeActiveTool', 'ai')"
       >
         <template #icon>
@@ -89,7 +89,7 @@ const emit = defineEmits<{
 
       <SidebarItem
         label="Settings"
-        :isActive="props.activeTool === 'settings'"
+        :isActive="activeTool === activeToolValues.SETTINGS"
         @click="emit('onChangeActiveTool', 'settings')"
       >
         <template #icon>

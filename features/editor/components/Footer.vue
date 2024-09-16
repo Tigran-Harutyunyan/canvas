@@ -10,7 +10,7 @@ interface FooterProps {
   editor: Editor | undefined;
 }
 
-const props = defineProps<FooterProps>();
+defineProps<FooterProps>();
 </script>
 <template>
   <footer
@@ -18,7 +18,7 @@ const props = defineProps<FooterProps>();
   >
     <Hint label="Reset" side="top" :sideOffset="10">
       <Button
-        @click="props.editor?.autoZoom()"
+        @click="editor?.autoZoom()"
         size="icon"
         variant="ghost"
         class="h-full"
@@ -28,7 +28,7 @@ const props = defineProps<FooterProps>();
     </Hint>
     <Hint label="Zoom in" side="top" :sideOffset="10">
       <Button
-        @click="props.editor?.zoomIn()"
+        @click="editor?.zoomIn()"
         size="icon"
         variant="ghost"
         class="h-full"
@@ -38,7 +38,7 @@ const props = defineProps<FooterProps>();
     </Hint>
     <Hint label="Zoom out" side="top" :sideOffset="10">
       <Button
-        @click="props.editor?.zoomOut()"
+        @click="editor?.zoomOut()"
         size="icon"
         variant="ghost"
         class="h-full"
