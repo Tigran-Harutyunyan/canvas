@@ -20,7 +20,6 @@ export const useHotkeys = ({
     let canvas: fabric.Canvas | undefined;
 
     onKeyStroke(true, (event) => {
-        event.preventDefault();
         const isCtrlKey = event.ctrlKey || event.metaKey;
         const isBackspace = event.key === "Backspace";
         const isInput = ["INPUT", "TEXTAREA"].includes(
