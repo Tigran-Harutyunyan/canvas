@@ -11,7 +11,7 @@ interface TextSidebarProps {
   editor: Editor | undefined;
 }
 
-const props = defineProps<TextSidebarProps>();
+defineProps<TextSidebarProps>();
 
 const emit = defineEmits<{
   (e: "onChangeActiveTool", tool: ActiveTool): void;

@@ -15,7 +15,9 @@ import FontSidebar from "./FontSidebar.vue";
 import DrawSidebar from "./DrawSidebar.vue";
 import FilterSidebar from "./FilterSidebar.vue";
 import ImageSidebar from "./ImageSidebar.vue";
+import RemovebgSidebar from "./RemovebgSidebar.vue";
 import TemplateSidebar from "./TemplateSidebar.vue";
+import AiSidebar from "./AiSidebar.vue";
 import Toolbar from "./Toolbar.vue";
 import Footer from "./Footer.vue";
 import {
@@ -147,6 +149,16 @@ onUnmounted(() => {
       />
       <ImageSidebar
         v-show="activeTool === activeToolValues.IMAGES"
+        :editor="editor"
+        @onChangeActiveTool="onChangeActiveTool"
+      />
+      <AiSidebar
+        v-if="activeTool === activeToolValues.AI"
+        :editor="editor"
+        @onChangeActiveTool="onChangeActiveTool"
+      />
+      <RemovebgSidebar
+        v-if="activeTool === activeToolValues.REMOVE_BG"
         :editor="editor"
         @onChangeActiveTool="onChangeActiveTool"
       />

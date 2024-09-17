@@ -3,8 +3,6 @@ import { AlertTriangle, Loader } from "lucide-vue-next";
 import { type ActiveTool, type Editor } from "@/features/editor/types";
 import { cn } from "@/lib/utils";
 
-import { useGetImages } from "@/features/images/api/useGetImages";
-
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -21,7 +19,7 @@ const fileInput = ref(null);
 
 const isUploading = ref(false);
 
-const { data, isLoading, isError } = useGetImages();
+const { data, error, pending } = await useFetch("/api/images");
 
 const uploadButtonText = computed(() =>
   isUploading.value ? "Uploading..." : "Upload Image"
@@ -84,12 +82,12 @@ const { startUpload } = useUploadThing("imageUploader", {
       </div>
     </div>
 
-    <div v-if="isLoading" class="flex items-center justify-center flex-1">
+    <div v-if="pending" class="flex items-center justify-center flex-1">
       <Loader class="size-4 text-muted-foreground animate-spin" />
     </div>
 
     <div
-      v-if="isError"
+      v-if="error"
       class="flex flex-col gap-y-4 items-center justify-center flex-1"
     >
       <AlertTriangle class="size-4 text-muted-foreground" />
@@ -98,9 +96,12 @@ const { startUpload } = useUploadThing("imageUploader", {
 
     <ScrollArea>
       <div class="p-4">
-        <div class="grid grid-cols-2 gap-4" v-if="data && Array.isArray(data)">
+        <div
+          class="grid grid-cols-2 gap-4"
+          v-if="data?.data && Array.isArray(data.data)"
+        >
           <button
-            v-for="image in data"
+            v-for="image in data.data"
             @click="editor?.addImage(image.urls.regular)"
             :key="image.id"
             class="relative w-full h-[100px] group hover:opacity-75 transition bg-muted rounded-sm overflow-hidden border"

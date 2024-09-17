@@ -57,6 +57,6 @@ watch(
         <ColorPicker :value="color" @onChange="onChange" />
       </div>
     </ScrollArea>
-    <ToolSidebarClose :onClick="onClose" />
+    <ToolSidebarClose @onClick="onClose" />
   </aside>
 </template>
