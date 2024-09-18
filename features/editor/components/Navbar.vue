@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { UserButton, SignedIn } from "vue-clerk";
+
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -21,6 +23,11 @@ import {
   Redo2,
   Undo2,
 } from "lucide-vue-next";
+import { useFileDialog } from "@vueuse/core";
+
+const { files, open, onChange } = useFileDialog({
+  accept: ".json",
+});
 
 interface NavbarProps {
   id: string;
@@ -36,6 +43,17 @@ const emit = defineEmits<{
 
 const isPending = ref(false);
 const isError = ref(false);
+
+onChange((plainFiles) => {
+  if (plainFiles && plainFiles.length > 0) {
+    const file = plainFiles[0];
+    const reader = new FileReader();
+    reader.readAsText(file, "UTF-8");
+    reader.onload = () => {
+      props.editor?.loadJson(reader.result as string);
+    };
+  }
+});
 </script>
 <template>
   <nav
@@ -51,7 +69,7 @@ const isError = ref(false);
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" class="min-w-60">
-          <DropdownMenuItem class="flex items-center gap-x-2">
+          <DropdownMenuItem @click="open()" class="flex items-center gap-x-2">
             <CiFileOn class="size-8" />
             <div>
               <p>Open</p>
@@ -117,7 +135,10 @@ const isError = ref(false);
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" class="min-w-60">
-            <DropdownMenuItem class="flex items-center gap-x-2">
+            <DropdownMenuItem
+              @click="editor?.saveJson()"
+              class="flex items-center gap-x-2"
+            >
               <CiFileOn class="size-8" />
               <div>
                 <p>JSON</p>
@@ -126,7 +147,10 @@ const isError = ref(false);
                 </p>
               </div>
             </DropdownMenuItem>
-            <DropdownMenuItem class="flex items-center gap-x-2">
+            <DropdownMenuItem
+              @click="editor?.savePng()"
+              class="flex items-center gap-x-2"
+            >
               <CiFileOn class="size-8" />
               <div>
                 <p>PNG</p>
@@ -135,14 +159,20 @@ const isError = ref(false);
                 </p>
               </div>
             </DropdownMenuItem>
-            <DropdownMenuItem class="flex items-center gap-x-2">
+            <DropdownMenuItem
+              @click="editor?.saveJpg()"
+              class="flex items-center gap-x-2"
+            >
               <CiFileOn class="size-8" />
               <div>
                 <p>JPG</p>
                 <p class="text-xs text-muted-foreground">Best for printing</p>
               </div>
             </DropdownMenuItem>
-            <DropdownMenuItem class="flex items-center gap-x-2">
+            <DropdownMenuItem
+              @click="editor?.saveSvg()"
+              class="flex items-center gap-x-2"
+            >
               <CiFileOn class="size-8" />
               <div>
                 <p>SVG</p>
@@ -153,7 +183,7 @@ const isError = ref(false);
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <!-- <UserButton /> -->
+        <UserButton v-if="SignedIn" />
       </div>
     </div>
   </nav>
