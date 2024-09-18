@@ -15,7 +15,7 @@ import FontSidebar from "./FontSidebar.vue";
 import DrawSidebar from "./DrawSidebar.vue";
 import FilterSidebar from "./FilterSidebar.vue";
 import ImageSidebar from "./ImageSidebar.vue";
-import RemovebgSidebar from "./RemovebgSidebar.vue";
+import RemoveBgSidebar from "./RemoveBgSidebar.vue";
 import TemplateSidebar from "./TemplateSidebar.vue";
 import AiSidebar from "./AiSidebar.vue";
 import Toolbar from "./Toolbar.vue";
@@ -25,11 +25,10 @@ import {
   type Editor,
   activeToolValues,
 } from "@/features/editor/types";
-//import { type ResponseType } from "@/features/projects/api/use-get-project";
+import { type ResponseType } from "@/features/projects/api/useGetProject";
 
 interface EditorProps {
-  // initialData: ResponseType["data"];
-  initialData: ResponseType["default"];
+  initialData: ResponseType;
 }
 
 const props = defineProps<EditorProps>();
@@ -88,6 +87,7 @@ onUnmounted(() => {
 <template>
   <div class="h-full flex flex-col">
     <Navbar
+      :id="initialData.id"
       :activeTool="activeTool"
       :editor="editor"
       @onChangeActiveTool="onChangeActiveTool"
@@ -157,7 +157,7 @@ onUnmounted(() => {
         :editor="editor"
         @onChangeActiveTool="onChangeActiveTool"
       />
-      <RemovebgSidebar
+      <RemoveBgSidebar
         v-if="activeTool === activeToolValues.REMOVE_BG"
         :editor="editor"
         @onChangeActiveTool="onChangeActiveTool"
