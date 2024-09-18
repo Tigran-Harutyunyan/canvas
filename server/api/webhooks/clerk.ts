@@ -30,6 +30,7 @@ export default defineEventHandler(async (event) => {
             }
 
             const response = await db.insert(users).values({
+                id,
                 email: emailAddress,
                 name: first_name || ''
             });
