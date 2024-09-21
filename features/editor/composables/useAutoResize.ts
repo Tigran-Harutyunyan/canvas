@@ -17,8 +17,8 @@ export const useAutoResize = () => {
         const width = container.offsetWidth;
         const height = container.offsetHeight;
 
-        canvas.setWidth(width);
-        canvas.setHeight(height);
+        if (width) canvas.setWidth(width);
+        if (height) canvas.setHeight(height);
 
         const center = canvas.getCenter();
 
