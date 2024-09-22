@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+definePageMeta({ middleware: "auth", auth: { guestRedirectUrl: "/sign-in" } });
+
 import { Loader, TriangleAlert } from "lucide-vue-next";
 import { useGetProject } from "@/features/projects/api/useGetProject";
 import Editor from "@/features/editor/components/Editor.vue";
