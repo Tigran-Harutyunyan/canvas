@@ -9,11 +9,13 @@ interface SidebarItemProps {
 
 defineProps<SidebarItemProps>();
 
-const onClick = () => {};
+const emit = defineEmits<{
+  (e: "onClick"): void;
+}>();
 </script>
 
 <template>
-  <NuxtLink :to="href" @onClick="onClick">
+  <NuxtLink :to="href" @click="emit('onClick')">
     <div
       :class="
         cn(
