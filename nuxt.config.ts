@@ -1,17 +1,21 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  // build: {
-  //   transpile: ['vue3-colorpicker']
-  // },
+
   modules: [
     '@nuxtjs/tailwindcss',
     'shadcn-nuxt',
     '@vueuse/nuxt',
     '@nuxt/image',
-    '@hebilicious/vue-query-nuxt',
-    "@uploadthing/nuxt"
+    "@uploadthing/nuxt",
+    'vue-clerk/nuxt',
+    '@pinia/nuxt',
+    '@fixers/nuxt-stripe'
   ],
+
+  clerk: {
+    afterSignOutUrl: '/sign-in'
+  },
   shadcn: {
     /**
      * Prefix for all the imported component
@@ -26,10 +30,10 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       unsplashAccessKey: process.env.NUXT_PUBLIC_UNSPLASH_ACCESS_KEY,
-      // clerkPublishableKey: process.env.CLERK_PUBLISHABLE_KEY,
-      // cloudName: process.env.CLOUDINARY_CLOUD_NAME,
-      // cloudApiKey: process.env.CLOUDINARY_API_KEY,
-      // appUrl: process.env.APP_URL,
-    }
+      appUrl: process.env.APP_URL,
+    },
+    stripeKey: process.env.STRIPE_API_KEY,
+    stripePriceId: process.env.STRIPE_PRICE_ID,
+    stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET
   },
 })
