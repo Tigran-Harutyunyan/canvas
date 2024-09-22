@@ -14,6 +14,8 @@ export const useAutoResize = () => {
 
         if (!canvas && !container) return;
 
+        if (!container.offsetWidth || !container.offsetHeight) return;
+
         const width = container.offsetWidth;
         const height = container.offsetHeight;
 
