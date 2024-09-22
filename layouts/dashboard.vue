@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import Navbar from "../components/dashboard/Navbar.vue";
-import Sidebar from "../components/dashboard/Sidebar.vue";
+import Navbar from "@/components/dashboard/Navbar.vue";
+import Sidebar from "@/components/dashboard/Sidebar.vue";
+import { useSubscriptionAlert } from "@/features/subscriptions/composables/useSubscriptionAlert";
+useSubscriptionAlert();
 </script>
 
 <template>
