@@ -35,8 +35,6 @@ export default defineEventHandler(async (event) => {
                 name: first_name || ''
             });
 
-            console.log('response', response);
-
             return { success: true }
 
 
