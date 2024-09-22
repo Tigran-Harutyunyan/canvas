@@ -8,11 +8,15 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
+import { usePayWall } from "@/features/subscriptions/composables/usePayWall";
+
 interface FillColorSidebarProps {
   editor: Editor | undefined;
 }
 
 const props = defineProps<FillColorSidebarProps>();
+
+const { shouldBlock, triggerPaywall } = await usePayWall();
 
 const isPending = ref(false);
 
@@ -27,6 +31,11 @@ const onClose = () => {
 const prompt = ref();
 
 const onSubmit = async () => {
+  if (shouldBlock.value) {
+    triggerPaywall();
+    return;
+  }
+
   if (!prompt.value) return;
 
   isPending.value = true;

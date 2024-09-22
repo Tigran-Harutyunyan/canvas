@@ -10,6 +10,8 @@ import ToolSidebarHeader from "@/features/editor/components/ToolSidebarHeader.vu
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
+import { usePayWall } from "@/features/subscriptions/composables/usePayWall";
+
 interface FillColorSidebarProps {
   editor: Editor | undefined;
 }
@@ -33,7 +35,14 @@ const imageSrc = computed(
   () => selectedObject.value?._originalElement?.currentSrc
 );
 
+const { shouldBlock, triggerPaywall } = await usePayWall();
+
 const onClick = async () => {
+  if (shouldBlock.value) {
+    triggerPaywall();
+    return;
+  }
+
   if (!imageSrc.value) return;
 
   isPending.value = true;
