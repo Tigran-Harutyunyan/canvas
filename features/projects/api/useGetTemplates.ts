@@ -1,18 +1,46 @@
+export type ResponseType = {
+    json: string;
+    name: string;
+    id: string;
+    userId: string;
+    height: number;
+    width: number;
+    thumbnailUrl: string | null;
+    isTemplate: boolean | null;
+    isPro: boolean | null;
+    createdAt: string;
+    updatedAt: string;
+}
 export const useGetTemplates = () => {
+    const data = ref<ResponseType[]>([]);
+    const isPending = ref(false);
+    const isError = ref(false);
+    const limit = ref(4);
+    const page = ref(1);
 
-    // const { isLoading, isError, data, error } = useQuery({
-    //     queryKey: ["images"],
-    //     queryFn: async () => {
-    //         const response = await $fetch(`/api/images`, {
-    //             method: "get",
-    //         });
+    const getTemplates = async () => {
 
-    //         if (!response) {
-    //             throw new Error("Failed to fetch images");
-    //         }
-    //         return response.data;
-    //     },
-    // });
 
-    // return { isLoading, isError, data, error };
+        isPending.value = true;
+
+        try {
+            const url = `/api/templates?limit=${limit.value}&page=${page.value}`;
+
+            const response = await $fetch<ResponseType[]>(url, {
+                method: 'get'
+            });
+
+
+            if (response && response.length) {
+                data.value = response;
+            }
+
+        } catch (error) {
+            isError.value = true;
+        } finally {
+            isPending.value = false;
+        }
+    }
+
+    return { isError, isPending, data, getTemplates }
 };
