@@ -7,8 +7,6 @@ export default defineEventHandler(async (event) => {
     const { userId } = getAuth(event);
     const query = await getQuery(event);
 
-    console.log(query)
-
     if (!userId) {
         setResponseStatus(event, 403)
         return;
