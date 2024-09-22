@@ -2,6 +2,8 @@
 import { fabric } from "fabric";
 import { ref, onMounted, onUnmounted } from "vue";
 import { useEditor } from "@/features/editor/composables/useEditor";
+import { useUpdateProject } from "@/features/projects/api/useUpdateProject";
+import { type ResponseType } from "@/features/projects/api/useGetProject";
 import Navbar from "./Navbar.vue";
 import Sidebar from "./Sidebar.vue";
 import ShapeSidebar from "./ShapeSidebar.vue";
@@ -24,8 +26,10 @@ import {
   type ActiveTool,
   type Editor,
   activeToolValues,
+  selectionDependentTools,
 } from "@/features/editor/types";
-import { type ResponseType } from "@/features/projects/api/useGetProject";
+
+import { useDebounceFn } from "@vueuse/core";
 
 interface EditorProps {
   initialData: ResponseType;
@@ -38,12 +42,31 @@ const containerRef = ref(null);
 
 const activeTool = ref<ActiveTool>("select");
 
+const params = useRoute().params;
+
+const { updateProject, isError, isPending } = useUpdateProject(
+  params?.projectId as string
+);
+
+const onClearSelection = () => {
+  if (selectionDependentTools.includes(activeTool.value)) {
+    activeTool.value = "select";
+  }
+};
+
+const debouncedSave = useDebounceFn(
+  async (values: { json: string; height: number; width: number }) => {
+    await updateProject(values);
+  },
+  500
+);
+
 const { init, editor } = useEditor({
   defaultState: props.initialData?.json,
   defaultWidth: props.initialData?.width,
   defaultHeight: props.initialData?.height,
-  // clearSelectionCallback: onClearSelection,
-  // saveCallback: debouncedSave,
+  clearSelectionCallback: onClearSelection,
+  saveCallback: debouncedSave,
 });
 
 let canvas: fabric.Canvas | null = null;
@@ -88,7 +111,9 @@ onUnmounted(() => {
   <div class="h-full flex flex-col">
     <Navbar
       :id="initialData.id"
-      :activeTool="activeTool"
+      :active-tool="activeTool"
+      :is-error="isError"
+      :is-pending="isPending"
       :editor="editor"
       @onChangeActiveTool="onChangeActiveTool"
     />
@@ -98,7 +123,7 @@ onUnmounted(() => {
         @onChangeActiveTool="onChangeActiveTool"
       />
       <TemplateSidebar
-        v-if="activeTool === activeToolValues.TEMPLATES"
+        v-show="activeTool === activeToolValues.TEMPLATES"
         :editor="editor"
         @onChangeActiveTool="onChangeActiveTool"
       />
@@ -148,7 +173,7 @@ onUnmounted(() => {
         @onChangeActiveTool="onChangeActiveTool"
       />
       <ImageSidebar
-        v-show="activeTool === activeToolValues.IMAGES"
+        v-if="activeTool === activeToolValues.IMAGES"
         :editor="editor"
         @onChangeActiveTool="onChangeActiveTool"
       />
