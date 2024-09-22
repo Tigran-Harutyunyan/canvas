@@ -1,4 +1,5 @@
 <script setup lang="ts">
+definePageMeta({ middleware: "auth", auth: { guestRedirectUrl: "/sign-in" } });
 import Banner from "@/components/dashboard/Banner.vue";
 import TemplatesSection from "@/components/dashboard/TemplatesSection.vue";
 import ProjectsSection from "@/components/dashboard/ProjectsSection.vue";
