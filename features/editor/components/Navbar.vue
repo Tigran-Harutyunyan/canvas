@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { UserButton, SignedIn } from "vue-clerk";
+import {
+  UserButton,
+  SignedIn,
+  SignedOut,
+  RedirectToSignIn,
+  useClerk,
+} from "vue-clerk";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -42,6 +48,8 @@ const props = defineProps<NavbarProps>();
 const emit = defineEmits<{
   (e: "onChangeActiveTool", tool: ActiveTool): void;
 }>();
+
+const clerk = useClerk();
 
 onChange((plainFiles) => {
   if (plainFiles && plainFiles.length > 0) {
@@ -182,7 +190,10 @@ onChange((plainFiles) => {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <UserButton v-if="SignedIn" />
+        <UserButton v-if="SignedIn" after-sign-out-url="/sign-in" />
+        <SignedOut>
+          <RedirectToSignIn redirect-url="/sign-in" />
+        </SignedOut>
       </div>
     </div>
   </nav>
