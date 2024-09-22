@@ -11,6 +11,9 @@ import {
 } from "@/features/projects/api/useGetTemplates";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
 
+import { usePayWall } from "@/features/subscriptions/composables/usePayWall";
+const { shouldBlock, triggerPaywall } = await usePayWall();
+
 const confirm = ref<InstanceType<typeof ConfirmDialog> | null>(null);
 
 interface TemplateSidebarProps {
@@ -30,10 +33,10 @@ const onClose = () => {
 };
 
 const onClick = async (template: ResponseType) => {
-  //   if (template.isPro && shouldBlock) {
-  //     triggerPaywall();
-  //     return;
-  //   }
+  if (template.isPro && shouldBlock.value) {
+    triggerPaywall();
+    return;
+  }
 
   const userInput = await confirm.value?.openModal(
     "Are you sure?",
