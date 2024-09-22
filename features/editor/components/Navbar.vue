@@ -33,6 +33,8 @@ interface NavbarProps {
   id: string;
   editor: Editor | undefined;
   activeTool: ActiveTool;
+  isPending: boolean;
+  isError: boolean;
 }
 
 const props = defineProps<NavbarProps>();
@@ -40,9 +42,6 @@ const props = defineProps<NavbarProps>();
 const emit = defineEmits<{
   (e: "onChangeActiveTool", tool: ActiveTool): void;
 }>();
-
-const isPending = ref(false);
-const isError = ref(false);
 
 onChange((plainFiles) => {
   if (plainFiles && plainFiles.length > 0) {
