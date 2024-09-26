@@ -25,7 +25,7 @@ import Footer from "./Footer.vue";
 import {
   type ActiveTool,
   type Editor,
-  activeToolValues,
+  TOOLS,
   selectionDependentTools,
 } from "@/features/editor/types";
 
@@ -72,11 +72,11 @@ const { init, editor } = useEditor({
 let canvas: fabric.Canvas | null = null;
 
 const onChangeActiveTool = (tool: ActiveTool) => {
-  if (tool === activeToolValues.DRAW) {
+  if (tool === TOOLS.DRAW) {
     editor.value?.enableDrawingMode();
   }
 
-  if (activeTool.value === activeToolValues.DRAW) {
+  if (activeTool.value === TOOLS.DRAW) {
     editor.value?.disableDrawingMode();
   }
 
@@ -123,72 +123,72 @@ onUnmounted(() => {
         @onChangeActiveTool="onChangeActiveTool"
       />
       <TemplateSidebar
-        v-show="activeTool === activeToolValues.TEMPLATES"
+        v-show="activeTool === TOOLS.TEMPLATES"
         :editor="editor"
         @onChangeActiveTool="onChangeActiveTool"
       />
       <ShapeSidebar
-        v-if="activeTool === activeToolValues.SHAPES"
+        v-if="activeTool === TOOLS.SHAPES"
         :editor="editor"
         @onChangeActiveTool="onChangeActiveTool"
       />
       <FillColorSidebar
-        v-if="activeTool === activeToolValues.FILL"
+        v-if="activeTool === TOOLS.FILL"
         :editor="editor"
         @onChangeActiveTool="onChangeActiveTool"
       />
       <StrokeColorSidebar
-        v-if="activeTool === activeToolValues.STROKE_COLOR"
+        v-if="activeTool === TOOLS.STROKE_COLOR"
         :editor="editor"
         @onChangeActiveTool="onChangeActiveTool"
       />
       <StrokeWidthSidebar
-        v-if="activeTool === activeToolValues.STROKE_WIDTH"
+        v-if="activeTool === TOOLS.STROKE_WIDTH"
         :editor="editor"
         @onChangeActiveTool="onChangeActiveTool"
       />
       <OpacitySidebar
-        v-if="activeTool === activeToolValues.OPACITY"
+        v-if="activeTool === TOOLS.OPACITY"
         :editor="editor"
         @onChangeActiveTool="onChangeActiveTool"
       />
       <TextSidebar
-        v-if="activeTool === activeToolValues.TEXT"
+        v-if="activeTool === TOOLS.TEXT"
         :editor="editor"
         @onChangeActiveTool="onChangeActiveTool"
       />
       <FontSidebar
-        v-if="activeTool === activeToolValues.FONT"
+        v-if="activeTool === TOOLS.FONT"
         :editor="editor"
         @onChangeActiveTool="onChangeActiveTool"
       />
       <DrawSidebar
-        v-if="activeTool === activeToolValues.DRAW"
+        v-if="activeTool === TOOLS.DRAW"
         :editor="editor"
         @onChangeActiveTool="onChangeActiveTool"
       />
       <FilterSidebar
-        v-if="activeTool === activeToolValues.FILTER"
+        v-if="activeTool === TOOLS.FILTER"
         :editor="editor"
         @onChangeActiveTool="onChangeActiveTool"
       />
       <ImageSidebar
-        v-if="activeTool === activeToolValues.IMAGES"
+        v-if="activeTool === TOOLS.IMAGES"
         :editor="editor"
         @onChangeActiveTool="onChangeActiveTool"
       />
       <AiSidebar
-        v-if="activeTool === activeToolValues.AI"
+        v-if="activeTool === TOOLS.AI"
         :editor="editor"
         @onChangeActiveTool="onChangeActiveTool"
       />
       <RemoveBgSidebar
-        v-if="activeTool === activeToolValues.REMOVE_BG"
+        v-if="activeTool === TOOLS.REMOVE_BG"
         :editor="editor"
         @onChangeActiveTool="onChangeActiveTool"
       />
       <SettingsSidebar
-        v-if="activeTool === activeToolValues.SETTINGS"
+        v-if="activeTool === TOOLS.SETTINGS"
         :editor="editor"
         @onChangeActiveTool="onChangeActiveTool"
       />

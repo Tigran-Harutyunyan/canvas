@@ -109,7 +109,7 @@ export type ActiveTool =
   | "remove-bg"
   | "templates";
 
-export const activeToolValues = {
+export const TOOLS = {
   SELECT: 'select',
   SHAPES: 'shapes',
   TEXT: 'text',
@@ -126,6 +126,12 @@ export const activeToolValues = {
   REMOVE_BG: 'remove-bg',
   TEMPLATES: 'templates'
 }
+
+export const TEXT_ALIGNMENT = {
+  LEFT: "left",
+  RIGHT: 'right',
+  CENTER: 'center',
+};
 
 export const FILL_COLOR = "rgba(0,0,0,1)";
 export const STROKE_COLOR = "rgba(0,0,0,1)";

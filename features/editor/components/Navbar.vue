@@ -21,6 +21,7 @@ import Hint from "@/components/Hint.vue";
 import { CiFileOn } from "vue3-icons/ci";
 import { BsCloudCheck, BsCloudSlash } from "vue3-icons/bs";
 import type { ActiveTool, Editor } from "@/features/editor/types";
+import { TOOLS } from "@/features/editor/types";
 import {
   ChevronDown,
   Download,
@@ -90,8 +91,8 @@ onChange((plainFiles) => {
         <Button
           variant="ghost"
           size="icon"
-          :class="cn(props.activeTool === 'select' && 'bg-gray-100')"
-          @click="emit('onChangeActiveTool', 'select')"
+          :class="cn(props.activeTool === TOOLS.SELECT && 'bg-gray-100')"
+          @click="emit('onChangeActiveTool', TOOLS.SELECT)"
         >
           <MousePointerClick class="size-4" />
         </Button>

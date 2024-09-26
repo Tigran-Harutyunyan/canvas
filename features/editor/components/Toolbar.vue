@@ -22,6 +22,8 @@ import {
   type Editor,
   FONT_SIZE,
   FONT_WEIGHT,
+  TOOLS,
+  TEXT_ALIGNMENT,
 } from "@/features/editor/types";
 import { cn } from "@/lib/utils";
 import Hint from "@/components/Hint.vue";
@@ -152,10 +154,10 @@ onMounted(() => {
     <div v-if="!isImage" class="flex items-center h-full justify-center">
       <Hint label="Color" side="bottom" :sideOffset="5">
         <Button
-          @click="onChangeActiveTool('fill')"
+          @click="onChangeActiveTool(TOOLS.FILL)"
           size="icon"
           variant="ghost"
-          :class="cn(activeTool === 'fill' && 'bg-gray-100')"
+          :class="cn(activeTool === TOOLS.FILL && 'bg-gray-100')"
         >
           <div
             class="rounded-sm size-4 border"
@@ -168,10 +170,10 @@ onMounted(() => {
     <div v-if="!isText" class="flex items-center h-full justify-center">
       <Hint label="Stroke color" side="bottom" :sideOffset="5">
         <Button
-          @click="onChangeActiveTool('stroke-color')"
+          @click="onChangeActiveTool(TOOLS.STROKE_COLOR)"
           size="icon"
           variant="ghost"
-          :class="cn(activeTool === 'stroke-color' && 'bg-gray-100')"
+          :class="cn(activeTool === TOOLS.STROKE_COLOR && 'bg-gray-100')"
         >
           <div
             class="rounded-sm size-4 border-2 bg-white"
@@ -184,10 +186,10 @@ onMounted(() => {
     <div v-if="!isText" class="flex items-center h-full justify-center">
       <Hint label="Stroke width" side="bottom" :sideOffset="5">
         <Button
-          @click="onChangeActiveTool('stroke-width')"
+          @click="onChangeActiveTool(TOOLS.STROKE_WIDTH)"
           size="icon"
           variant="ghost"
-          :class="cn(activeTool === 'stroke-width' && 'bg-gray-100')"
+          :class="cn(activeTool === TOOLS.STROKE_WIDTH && 'bg-gray-100')"
         >
           <BsBorderWidth class="size-4" />
         </Button>
@@ -198,11 +200,14 @@ onMounted(() => {
       <div class="flex items-center h-full justify-center">
         <Hint label="Font" side="bottom" :sideOffset="5">
           <Button
-            @click="onChangeActiveTool('font')"
+            @click="onChangeActiveTool(TOOLS.FONT)"
             size="icon"
             variant="ghost"
             :class="
-              cn('w-auto px-2 text-sm', activeTool === 'font' && 'bg-gray-100')
+              cn(
+                'w-auto px-2 text-sm',
+                activeTool === TOOLS.FONT && 'bg-gray-100'
+              )
             "
           >
             <div class="max-w-[100px] truncate">
@@ -265,7 +270,7 @@ onMounted(() => {
       <div class="flex items-center h-full justify-center">
         <Hint label="Align left" side="bottom" :sideOffset="5">
           <Button
-            @click="onChangeTextAlign('left')"
+            @click="onChangeTextAlign(TEXT_ALIGNMENT.LEFT)"
             size="icon"
             variant="ghost"
             :class="cn(properties.textAlign === 'bg-gray-100' && 'bg-gray-100')"
@@ -278,10 +283,14 @@ onMounted(() => {
       <div class="flex items-center h-full justify-center">
         <Hint label="Align center" side="bottom" :sideOffset="5">
           <Button
-            @click="onChangeTextAlign('center')"
+            @click="onChangeTextAlign(TEXT_ALIGNMENT.CENTER)"
             size="icon"
             variant="ghost"
-            :class="cn(properties.textAlign === 'center' && 'bg-gray-100')"
+            :class="
+              cn(
+                properties.textAlign === TEXT_ALIGNMENT.CENTER && 'bg-gray-100'
+              )
+            "
           >
             <AlignCenter class="size-4" />
           </Button>
@@ -290,10 +299,12 @@ onMounted(() => {
       <div class="flex items-center h-full justify-center">
         <Hint label="Align right" side="bottom" :sideOffset="5">
           <Button
-            @click="onChangeTextAlign('right')"
+            @click="onChangeTextAlign(TEXT_ALIGNMENT.RIGHT)"
             size="icon"
             variant="ghost"
-            :class="cn(properties.textAlign === 'right' && 'bg-gray-100')"
+            :class="
+              cn(properties.textAlign === TEXT_ALIGNMENT.RIGHT && 'bg-gray-100')
+            "
           >
             <AlignRight class="size-4" />
           </Button>
@@ -311,10 +322,10 @@ onMounted(() => {
     <div v-if="isImage" class="flex items-center h-full justify-center">
       <Hint label="Filters" side="bottom" :sideOffset="5">
         <Button
-          @click="onChangeActiveTool('filter')"
+          @click="onChangeActiveTool(TOOLS.FILTER)"
           size="icon"
           variant="ghost"
-          :class="cn(activeTool === 'filter' && 'bg-gray-100')"
+          :class="cn(activeTool === TOOLS.FILTER && 'bg-gray-100')"
         >
           <TbColorFilter class="size-4" />
         </Button>
@@ -324,10 +335,10 @@ onMounted(() => {
     <div v-if="isImage" class="flex items-center h-full justify-center">
       <Hint label="Remove background" side="bottom" :sideOffset="5">
         <Button
-          @click="onChangeActiveTool('remove-bg')"
+          @click="onChangeActiveTool(TOOLS.REMOVE_BG)"
           size="icon"
           variant="ghost"
-          :class="cn(activeTool === 'remove-bg' && 'bg-gray-100')"
+          :class="cn(activeTool === TOOLS.REMOVE_BG && 'bg-gray-100')"
         >
           <SquareSplitHorizontal class="size-4" />
         </Button>
@@ -351,10 +362,10 @@ onMounted(() => {
     <div class="flex items-center h-full justify-center">
       <Hint label="Opacity" side="bottom" :sideOffset="5">
         <Button
-          @click="onChangeActiveTool('opacity')"
+          @click="onChangeActiveTool(TOOLS.OPACITY)"
           size="icon"
           variant="ghost"
-          :class="cn(activeTool === 'opacity' && 'bg-gray-100')"
+          :class="cn(activeTool === TOOLS.OPACITY && 'bg-gray-100')"
         >
           <RxTransparencyGrid class="size-4" />
         </Button>
