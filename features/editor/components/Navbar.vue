@@ -50,8 +50,6 @@ const emit = defineEmits<{
   (e: "onChangeActiveTool", tool: ActiveTool): void;
 }>();
 
-const clerk = useClerk();
-
 onChange((plainFiles) => {
   if (plainFiles && plainFiles.length > 0) {
     const file = plainFiles[0];
@@ -62,6 +60,10 @@ onChange((plainFiles) => {
     };
   }
 });
+
+const handleClick = (activeTool: ActiveTool) => {
+  emit("onChangeActiveTool", activeTool);
+};
 </script>
 <template>
   <nav
@@ -92,7 +94,7 @@ onChange((plainFiles) => {
           variant="ghost"
           size="icon"
           :class="cn(props.activeTool === TOOLS.SELECT && 'bg-gray-100')"
-          @click="emit('onChangeActiveTool', TOOLS.SELECT)"
+          @click="handleClick(TOOLS.SELECT)"
         >
           <MousePointerClick class="size-4" />
         </Button>

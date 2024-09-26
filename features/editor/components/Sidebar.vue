@@ -21,6 +21,10 @@ defineProps<SidebarProps>();
 const emit = defineEmits<{
   (e: "onChangeActiveTool", tool: ActiveTool): void;
 }>();
+
+const handleClick = (activeTool: ActiveTool) => {
+  emit("onChangeActiveTool", activeTool);
+};
 </script>
 <template>
   <aside
@@ -30,7 +34,7 @@ const emit = defineEmits<{
       <SidebarItem
         label="Design"
         :isActive="activeTool === TOOLS.TEMPLATES"
-        @click="emit('onChangeActiveTool', TOOLS.TEMPLATES)"
+        @click="handleClick(TOOLS.TEMPLATES)"
       >
         <template #icon>
           <LayoutTemplate />
@@ -40,7 +44,7 @@ const emit = defineEmits<{
       <SidebarItem
         label="Image"
         :isActive="activeTool === TOOLS.IMAGES"
-        @click="emit('onChangeActiveTool', TOOLS.IMAGES)"
+        @click="handleClick(TOOLS.IMAGES)"
       >
         <template #icon>
           <ImageIcon />
@@ -50,7 +54,7 @@ const emit = defineEmits<{
       <SidebarItem
         label="Text"
         :isActive="activeTool === TOOLS.TEXT"
-        @click="emit('onChangeActiveTool', TOOLS.TEXT)"
+        @click="handleClick(TOOLS.TEXT)"
       >
         <template #icon>
           <Type />
@@ -60,7 +64,7 @@ const emit = defineEmits<{
       <SidebarItem
         label="Shapes"
         :isActive="activeTool === TOOLS.SHAPES"
-        @click="emit('onChangeActiveTool', TOOLS.SHAPES)"
+        @click="handleClick(TOOLS.SHAPES)"
       >
         <template #icon>
           <Shapes />
@@ -70,7 +74,7 @@ const emit = defineEmits<{
       <SidebarItem
         label="Draw"
         :isActive="activeTool === TOOLS.DRAW"
-        @click="emit('onChangeActiveTool', TOOLS.DRAW)"
+        @click="handleClick(TOOLS.DRAW)"
       >
         <template #icon>
           <Pencil />
@@ -80,7 +84,7 @@ const emit = defineEmits<{
       <SidebarItem
         label="AI"
         :isActive="activeTool === TOOLS.AI"
-        @click="emit('onChangeActiveTool', TOOLS.AI)"
+        @click="handleClick(TOOLS.AI)"
       >
         <template #icon>
           <Sparkles />
@@ -90,7 +94,7 @@ const emit = defineEmits<{
       <SidebarItem
         label="Settings"
         :isActive="activeTool === TOOLS.SETTINGS"
-        @click="emit('onChangeActiveTool', TOOLS.SETTINGS)"
+        @click="handleClick(TOOLS.SETTINGS)"
       >
         <template #icon>
           <Settings />
