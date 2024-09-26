@@ -273,7 +273,9 @@ onMounted(() => {
             @click="onChangeTextAlign(TEXT_ALIGNMENT.LEFT)"
             size="icon"
             variant="ghost"
-            :class="cn(properties.textAlign === 'bg-gray-100' && 'bg-gray-100')"
+            :class="
+              cn(properties.textAlign === TEXT_ALIGNMENT.LEFT && 'bg-gray-100')
+            "
           >
             <AlignLeft class="size-4" />
           </Button>
